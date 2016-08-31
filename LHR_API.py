@@ -14,6 +14,7 @@ class LHR_API():
         self.result = []
         self.debug = True
 
+    # Get soup from an url
     def getsoup(self, url):
         # Get html page
         html = urllib.request.urlopen(url).read()
@@ -21,6 +22,7 @@ class LHR_API():
         soup = BeautifulSoup.BeautifulSoup(html, "html.parser")
         return (soup)
 
+    # Extract the search pages for any luxury handbags brand
     def extract_brands(self, soup):
         # Extract tags which contains url to brands page in the luxury ブランド section
         tag_list = soup.find("div", attrs={"class": "riClfx rigSetHeightWrap riMaB20"})
@@ -66,12 +68,11 @@ class LHR_API():
     # TODO : May also parse the items page to get more pictures instead of the thumbnail
     #        But that will multiply the request amount by 46...
     # Parse a rakuten search page
-    def parse_search_page(self, url):
-        soup = self.getsoup(url)
+    def parse_search_page(self, soup):
         item_list = soup.findAll("div", attrs={"class": "rsrSResultSect clfx"})
         for item in item_list:
             item_dict = dict()
-            item_dict["name"] = item.img["alt"]
+            item_dict["name"] = item.img["alt"] if "alt" in item.img else None
             item_dict["url"] = item.a["href"]
             description = item.find("p", attrs={"class": "copyTxt"})
             if description is not None:
@@ -89,7 +90,18 @@ class LHR_API():
         soup = self.getsoup(URL)
         url_brand_list = self.extract_brands(soup)
         for url_brand in url_brand_list:
-            self.parse_search_page(url_brand)
+            i = 1
+            failed = False
+            while not failed:
+                soup = self.getsoup(url_brand + "?p=" + str(i))
+                # Check if the search page is back to the first (overflow)
+                failed = (i != int(soup.find("input", attrs={"id": "ratPageNum"})["value"]))
+                print(failed)
+                print(i)
+                print(int(soup.find("input", attrs={"id": "ratPageNum"})["value"]))
+                if not failed:
+                    self.parse_search_page(soup)
+                    i += 1
 
 
 if __name__ == "__main__":
