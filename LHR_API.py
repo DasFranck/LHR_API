@@ -8,10 +8,11 @@ URL = "http://www.rakuten.co.jp/category/fashiongoods/?l-id=top_normal_gmenu_d04
 
 
 class LHR_API():
-    # Init list and dict
-    def __init__(self):
+    # Init list
+    def __init__(self, debug=False):
         self.url_list = []
-        self.result = dict()
+        self.result = []
+        self.debug = True
 
     def getsoup(self, url):
         # Get html page
@@ -45,16 +46,54 @@ class LHR_API():
         # Remove duplicates and return the list
         return (list(set(url_brand_list)))
 
+    # Extract price from the item
+    def extract_price(self, item):
+        cleaned = ""
+        price = item.find("p", attrs={"class": "price"}).text
+        for i in price:
+            if i.isdigit():
+                cleaned += i
+        return (int(cleaned))
+
+    # Remove \n and \t from a string
+    def clean_text(self, name):
+        string = ""
+        for i in name:
+            if i not in ["\n", "\t"]:
+                string += i
+        return (string if string[0] is not " " else string[1:])
+
+    # TODO : May also parse the items page to get more pictures instead of the thumbnail
+    #        But that will multiply the request amount by 46...
+    # Parse a rakuten search page
+    def parse_search_page(self, url):
+        soup = self.getsoup(url)
+        item_list = soup.findAll("div", attrs={"class": "rsrSResultSect clfx"})
+        for item in item_list:
+            item_dict = dict()
+            item_dict["name"] = item.img["alt"]
+            item_dict["url"] = item.a["href"]
+            description = item.find("p", attrs={"class": "copyTxt"})
+            if description is not None:
+                item_dict["description"] = self.clean_text(description.text)
+            else:
+                item_dict["description"] = None
+            item_dict["price"] = self.extract_price(item)
+            item_dict["picture_url"] = item.img["src"]
+            item_dict["seller_name"] = self.clean_text(item.find("span", attrs={"class": "txtIconShopName"}).text)
+            item_dict["seller_url"] = item.find("span", attrs={"class": "txtIconShopName"}).a["href"]
+            self.result.append(item_dict)
+
+    # Launch the API and fill self.result
     def start(self):
-        # try:
         soup = self.getsoup(URL)
-        # except Exception as err_msg:
-        #    print("Error: Getting soup has failed: %s" % err_msg)
-        #    return
         url_brand_list = self.extract_brands(soup)
-        print(url_brand_list)
+        for url_brand in url_brand_list:
+            self.parse_search_page(url_brand)
 
 
 if __name__ == "__main__":
-    lhr = LHR_API()
+    lhr = LHR_API(debug=True)
     lhr.start()
+    print(lhr.result)
+    print("%s items found." % len(lhr.result))
