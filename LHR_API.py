@@ -7,7 +7,7 @@ import bs4 as BeautifulSoup
 URL = "http://www.rakuten.co.jp/category/fashiongoods/?l-id=top_normal_gmenu_d04"
 
 
-class LHR_API():
+class LHR():
     # Init list
     def __init__(self, debug=False):
         self.url_list = []
@@ -24,7 +24,7 @@ class LHR_API():
         self.debug_print("Getting html from " + url)
         html = urllib.request.urlopen(url).read()
         # And use BeautifulSoup to parse it
-        self.debug_print("Parsing soup from the html of " + url)
+        self.debug_print("Parsing soup...")
         soup = BeautifulSoup.BeautifulSoup(html, "html.parser")
         return (soup)
 
@@ -111,7 +111,7 @@ class LHR_API():
 
 
 if __name__ == "__main__":
-    lhr = LHR_API(debug=True)
+    lhr = LHR(debug=True)
     lhr.start()
     print(lhr.result)
     print("%s items found." % len(lhr.result))
