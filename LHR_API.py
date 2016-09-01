@@ -12,13 +12,19 @@ class LHR_API():
     def __init__(self, debug=False):
         self.url_list = []
         self.result = []
-        self.debug = True
+        self.debug = debug
+
+    def debug_print(self, string):
+        if (self.debug):
+            print(string)
 
     # Get soup from an url
     def getsoup(self, url):
         # Get html page
+        self.debug_print("Getting html from " + url)
         html = urllib.request.urlopen(url).read()
         # And use BeautifulSoup to parse it
+        self.debug_print("Parsing soup from the html of " + url)
         soup = BeautifulSoup.BeautifulSoup(html, "html.parser")
         return (soup)
 
@@ -72,7 +78,7 @@ class LHR_API():
         item_list = soup.findAll("div", attrs={"class": "rsrSResultSect clfx"})
         for item in item_list:
             item_dict = dict()
-            item_dict["name"] = item.img["alt"] if "alt" in item.img else None
+            item_dict["name"] = item.img["alt"] if item.img.has_attr("alt") else None
             item_dict["url"] = item.a["href"]
             description = item.find("p", attrs={"class": "copyTxt"})
             if description is not None:
@@ -89,19 +95,19 @@ class LHR_API():
     def start(self):
         soup = self.getsoup(URL)
         url_brand_list = self.extract_brands(soup)
+        self.debug_print(str(len(url_brand_list)) + "brands found, parsing now...")
         for url_brand in url_brand_list:
+            print("%d/%d brands parsed" % (url_brand_list.index(url_brand) + 1, len(url_brand_list)))
             i = 1
             failed = False
             while not failed:
                 soup = self.getsoup(url_brand + "?p=" + str(i))
                 # Check if the search page is back to the first (overflow)
                 failed = (i != int(soup.find("input", attrs={"id": "ratPageNum"})["value"]))
-                print(failed)
-                print(i)
-                print(int(soup.find("input", attrs={"id": "ratPageNum"})["value"]))
                 if not failed:
                     self.parse_search_page(soup)
                     i += 1
+            print("%d pages analysed\n" % (i - 1))
 
 
 if __name__ == "__main__":
