@@ -15,10 +15,10 @@ lhr = LHR()
 lhr.start()
 ```
 
-Once it's done, lhr.results will be filled with a list of dictionnaries.  
+Once it's done, lhr.result will be filled with a list of dictionnaries.  
 You can access to a dictionnary like this :  
 ```python
-lhr.results[index]
+lhr.result[index]
 ```
 
 The dictionnary's keys are:
