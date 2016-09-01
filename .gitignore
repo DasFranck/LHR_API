@@ -1,2 +1,8 @@
 *.png
 __pycache__/
+
+# Venv-related
+bin/
+include/
+lib/
+pip-selfcheck.json
