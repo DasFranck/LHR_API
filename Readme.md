@@ -1,5 +1,5 @@
 # Luxury Handbag on Rakuten - The API
-A python module which parse Rakuten.co.jp and return a list of items.
+A python module which parse Rakuten.co.jp and return a list of luxury handbags.
 
 ## Installation
 Go in the main directory and just do:
@@ -14,9 +14,9 @@ from LHR_API import LHR
 lhr = LHR()
 lhr.start()
 ```
-  
+
 Once it's done, lhr.results will be filled with a list of dictionnaries.  
-You can access it like this :  
+You can access to a dictionnary like this :  
 ```python
 lhr.results[index]
 ```
