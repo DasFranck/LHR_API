@@ -110,6 +110,7 @@ class LHR():
             print("%d pages analysed\n" % (i - 1))
 
 
+# Example about the usage of the LHR class
 if __name__ == "__main__":
     lhr = LHR(debug=True)
     lhr.start()

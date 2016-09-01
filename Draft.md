@@ -8,10 +8,10 @@
   * requirements.txt (pip style)
 
 * Bonus:
-  * PEP 8 (flake8)
+  * PEP 8 (flake8) except E501 (line too long)
 
 * Target:
   * http://rakuten.co.jp (Japanese site)
 
 * Notes:
-  * UTF-8 required
+  * UTF-8 required (Built-in python 3)
